@@ -79,7 +79,51 @@ app.post('/', (req, res) => {
 
 // Put para actualizar (o crear) registros
 
+app.put('/:id', (req, res) => {
+    if(req.body === undefined || JSON.stringify(req.body) === JSON.stringify({})) {
+        return res.status(400).json({
+            message: 'Datos de cliente incorrectos'
+        })
+    }
+    let posicion = clientes.findIndex(elem => {
+        return elem.id === req.params.id;
+    })
+    if (posicion < 0) {
+        return res.status(404).json({
+            message: 'El cliente no existe'
+        })
+    }
+    if(req.body.nombre !== undefined) {
+        clientes[posicion].nombre = req.body.nombre;
+    }
+    if(req.body.cif !== undefined) {
+        clientes[posicion].cif = req.body.cif;
+    }
+    if(req.body.localidad !== undefined) {
+        clientes[posicion].localidad = req.body.localidad.toLowerCase();
+    }
+    res.status(201).json({
+        message: `El cliente ${clientes[posicion].nombre} ha sido actualizado`
+    })
+})
 
+// Delete elimina un registro
+
+app.delete('/:id', (req, res) => {
+    let posicion = clientes.findIndex(elem => {
+        return elem.id === req.params.id;
+    })
+    if (posicion < 0) {
+        return res.status(404).json({
+            message: 'El cliente no existe'
+        })
+    }
+    let nombreCliente = clientes[posicion].nombre;
+    clientes.splice(posicion, 1);
+    res.status(200).json({
+        message: `El cliente ${nombreCliente} ha sido eliminado`
+    })
+})
 
 app.listen(port, () => {
     console.log(`Servidor escuchando en http://localhost:${port}`)
