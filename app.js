@@ -10,11 +10,14 @@ let clientes = [
     {id: uuid.v4(), nombre: 'iberdrola', cif: 'A4443241', localidad: 'bilbao'}
 ]
 
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
+
 app.get('/', (req, res) => { // Base path del endpoint
     res.status(200).send(clientes);
 })
 
-// Get con parámetros en la url
+// Get con parámetros en la url (route-params  :parametro1/:parametro2... )
 
 app.get('/cliente-unico/:id', (req, res) => {
     let cliente = clientes.find(elem => {
@@ -48,6 +51,35 @@ app.get('/cliente-localidad', (req, res) => {
         clientesSeleccionados
     })
 })
+
+// Get con ruta con máscara (poco utilizado)
+
+app.get('/prov*', (req, res) => {
+    res.status(200).json({
+        message: 'Responde a cualquier get con ruta que comience por prov'
+    })
+})
+
+// Post para crear registros
+
+app.post('/', (req, res) => {
+    if(req.body === undefined || JSON.stringify(req.body) === JSON.stringify({})) {
+        return res.status(400).json({
+            message: 'Datos de cliente incorrectos'
+        })
+    }
+    let cliente = req.body;
+    cliente.id = uuid.v4();                      
+    cliente.localidad = cliente.localidad.toLowerCase();
+    clientes.push(cliente);
+    res.status(201).json({
+        message: `El cliente ${cliente.nombre} ha sido registrado correctamente`,
+    })
+})  
+
+// Put para actualizar (o crear) registros
+
+
 
 app.listen(port, () => {
     console.log(`Servidor escuchando en http://localhost:${port}`)
